@@ -1,16 +1,5 @@
-# First, install all required packages by running these commands in your terminal:
-"""
-pip install streamlit
-pip install Pillow
-pip install streamlit-lottie
-pip install requests
-"""
-
-# Then use this complete code:
-
 import streamlit as st
 from PIL import Image
-import os
 import time
 from streamlit_lottie import st_lottie
 import json
@@ -20,7 +9,7 @@ import requests
 st.set_page_config(layout="wide")
 
 # Title of the app
-st.title("Button-Triggered Local Image Display")
+st.title("ANNU BASED ON UR MOOD HIT THE BUTTON")
 
 # Load Lottie animation file
 def load_lottieurl(path: str):
@@ -109,12 +98,14 @@ def handle_button_click(button_number):
     if animations[button_number] is not None:
         st.session_state.loading = True
         st.session_state.button_clicked = button_number
+        
         with loading_container:
             try:
                 st_lottie(animations[button_number], height=200, key=f"loading_{button_number}")
                 time.sleep(2)
             except Exception as e:
                 st.error(f"Error displaying animation: {str(e)}")
+        
         st.session_state.current_image = button_number
         st.session_state.loading = False
         st.experimental_rerun()
@@ -125,6 +116,7 @@ loading_container = st.empty()
 # If there's a current image, display it
 if st.session_state.current_image:
     st.markdown("<div class='image-container'>", unsafe_allow_html=True)
+    
     try:
         # Open and display the local image
         image = Image.open(image_paths[st.session_state.current_image])
@@ -166,3 +158,9 @@ if st.session_state.loading and st.session_state.button_clicked:
             )
         except Exception as e:
             st.error(f"Error displaying loading animation: {str(e)}")
+
+# Add clickable link for "inner voice"
+st.markdown("""
+### If you want my inner voice, then click on the link below!
+[Click here](https://www.instagram.com/patil_pratham07/profilecard/?igsh=MWE0aGRrdTZybDJsNA==)
+""")
