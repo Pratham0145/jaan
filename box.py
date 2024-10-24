@@ -162,5 +162,5 @@ if st.session_state.loading and st.session_state.button_clicked:
 # Add clickable link for "inner voice"
 st.markdown("""
 ### If you want my inner voice, then click on the link below!
-[Click here](https://www.instagram.com/patil_pratham07/profilecard/?igsh=MWE0aGRrdTZybDJsNA==)
+[😘 CLICK MADI DM MADU 😘](https://www.instagram.com/patil_pratham07/profilecard/?igsh=MWE0aGRrdTZybDJsNA==)
 """)
