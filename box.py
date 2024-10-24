@@ -1,9 +1,20 @@
+# First, install all required packages by running these commands in your terminal:
+"""
+pip install streamlit
+pip install Pillow
+pip install streamlit-lottie
+pip install requests
+"""
+
+# Then use this complete code:
+
 import streamlit as st
 from PIL import Image
 import os
 import time
 from streamlit_lottie import st_lottie
 import json
+import requests
 
 # Set page configuration
 st.set_page_config(layout="wide")
@@ -13,15 +24,37 @@ st.title("Button-Triggered Local Image Display")
 
 # Load Lottie animation file
 def load_lottieurl(path: str):
-    with open(path, 'r') as f:
-        return json.load(f)
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        st.error(f"Error loading animation file: {path}")
+        st.error(f"Error details: {str(e)}")
+        return None
 
-# Load different animations for each button        
-animations = {
-    1: load_lottieurl("Animation - 1729771319722.json"),  # Happy/dance animation
-    2: load_lottieurl("angry.json"),                      # Angry animation
-    3: load_lottieurl("missyou.json")                     # Missing animation
-}
+# Alternative method to load Lottie from URL if local files don't work
+def load_lottie_from_url(url: str):
+    try:
+        response = requests.get(url)
+        return response.json()
+    except Exception as e:
+        st.error(f"Error loading animation from URL: {url}")
+        return None
+
+# Try loading local files first, if they fail, use URLs as fallback
+try:
+    animations = {
+        1: load_lottieurl("Animation - 1729771319722.json"),
+        2: load_lottieurl("angry.json"),
+        3: load_lottieurl("missyou.json")
+    }
+except:
+    # Fallback to online Lottie files
+    animations = {
+        1: load_lottie_from_url("https://assets6.lottiefiles.com/packages/lf20_xvrofzfk.json"),  # Happy animation
+        2: load_lottie_from_url("https://assets8.lottiefiles.com/packages/lf20_wj7f3ver.json"),  # Angry animation
+        3: load_lottie_from_url("https://assets7.lottiefiles.com/packages/lf20_kj1t9wtw.json")   # Sad animation
+    }
 
 # Add custom CSS to style the buttons
 st.markdown("""
@@ -58,9 +91,9 @@ st.markdown("""
 
 # Dictionary of local image paths
 image_paths = {
-    1: r"C:\Users\prathamesh.patil\Pictures\Screenshots\Screenshot 2024-08-09 160532.png",
-    2: r"C:\Users\prathamesh.patil\Pictures\Screenshots\Screenshot 2024-08-19 112450.png",
-    3: r"C:\Users\prathamesh.patil\Pictures\Screenshots\Screenshot 2024-08-28 162325.png"
+    1: r"devva-happy-idi-tane-nann-joteyavagu-nagata-iru-kane-maja.jpg",
+    2: r"im-sorry-kane-for-everything-ning-bhal-sala-bejar-madyan.jpg",
+    3: r"miss-en-madalla-ni-nang-gottu-but-nang-mari-beda-handi.jpg"
 }
 
 # Initialize session states
@@ -73,14 +106,18 @@ if 'button_clicked' not in st.session_state:
 
 # Function to handle button clicks
 def handle_button_click(button_number):
-    st.session_state.loading = True
-    st.session_state.button_clicked = button_number
-    with loading_container:
-        st_lottie(animations[button_number], height=200, key=f"loading_{button_number}")
-        time.sleep(2)
-    st.session_state.current_image = button_number
-    st.session_state.loading = False
-    st.experimental_rerun()
+    if animations[button_number] is not None:
+        st.session_state.loading = True
+        st.session_state.button_clicked = button_number
+        with loading_container:
+            try:
+                st_lottie(animations[button_number], height=200, key=f"loading_{button_number}")
+                time.sleep(2)
+            except Exception as e:
+                st.error(f"Error displaying animation: {str(e)}")
+        st.session_state.current_image = button_number
+        st.session_state.loading = False
+        st.experimental_rerun()
 
 # Create a container for the loading animation
 loading_container = st.empty()
@@ -93,7 +130,7 @@ if st.session_state.current_image:
         image = Image.open(image_paths[st.session_state.current_image])
         st.image(image, caption=f"Image {st.session_state.current_image}", use_column_width=True)
     except Exception as e:
-        st.error("Error loading image. Please check the image path or try again.")
+        st.error(f"Error loading image: {str(e)}")
     
     st.markdown("</div>", unsafe_allow_html=True)
     
@@ -101,7 +138,7 @@ if st.session_state.current_image:
     if st.button("Back to Home"):
         st.session_state.current_image = None
         st.session_state.loading = False
-        # st.experimental_rerun()
+        st.experimental_rerun()
 else:
     # Create three big buttons (one below another)
     col1, col2, col3 = st.columns([1, 1, 1])
@@ -121,8 +158,11 @@ else:
 # Show loading animation if in loading state
 if st.session_state.loading and st.session_state.button_clicked:
     with loading_container:
-        st_lottie(
-            animations[st.session_state.button_clicked], 
-            height=200, 
-            key=f"loading_{st.session_state.button_clicked}"
-        )
+        try:
+            st_lottie(
+                animations[st.session_state.button_clicked], 
+                height=200, 
+                key=f"loading_{st.session_state.button_clicked}"
+            )
+        except Exception as e:
+            st.error(f"Error displaying loading animation: {str(e)}")
